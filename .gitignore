@@ -35,11 +35,11 @@ build/
 !.vscode/settings.json
 
 ### Vue.js ###
-src/frontend/node_modules
-src/frontend/dist
-src/frontend/.env.local
-src/frontend/.env.*.local
-src/frontend/npm-debug.log*
-src/frontend/yarn-debug.log*
-src/frontend/yarn-error.log*
-src/frontend/pnpm-debug.log*
+src/main/frontend/node_modules
+src/main/frontend/dist
+src/main/frontend/.env.local
+src/main/frontend/.env.*.local
+src/main/frontend/npm-debug.log*
+src/main/frontend/yarn-debug.log*
+src/main/frontend/yarn-error.log*
+src/main/frontend/pnpm-debug.log*
