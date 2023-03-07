@@ -33,3 +33,13 @@ build/
 .vscode
 !.vscode/extensions.json
 !.vscode/settings.json
+
+### Vue.js ###
+src/frontend/node_modules
+src/frontend/dist
+src/frontend/.env.local
+src/frontend/.env.*.local
+src/frontend/npm-debug.log*
+src/frontend/yarn-debug.log*
+src/frontend/yarn-error.log*
+src/frontend/pnpm-debug.log*
