@@ -1,0 +1,33 @@
+[
+  {
+    "id": "as9dhasd",
+    "name": "Build Server",
+
+    "services": [
+      {
+        "id": "9sdh0a9dh",
+        "name": "Nexus Repository",
+        "status": {
+          "code": 2,
+          "message": null
+        }
+      },
+      {
+        "id": "09sjd09as",
+        "name": "SonarQube",
+        "status": {
+          "code": 1,
+          "message": "Invalid Certificate. Please contact System Administrator."
+        }
+      },
+      {
+        "id": "as89sa8d",
+        "name": "Jenkins",
+        "status": {
+          "code": 0,
+          "message": "Service not reachable."
+        }
+      }
+    ]
+  }
+]
