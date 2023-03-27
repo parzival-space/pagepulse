@@ -71,7 +71,7 @@ export default defineComponent({
       a {
         color: gray;
 
-        +:hover {
+        :hover {
           color: aqua;
         }
       }

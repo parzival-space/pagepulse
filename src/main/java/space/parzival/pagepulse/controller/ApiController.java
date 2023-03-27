@@ -10,19 +10,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
 import space.parzival.pagepulse.DatabaseManager;
 import space.parzival.pagepulse.database.HistoryEntry;
 import space.parzival.pagepulse.database.Service;
 import space.parzival.pagepulse.database.Status;
+import space.parzival.pagepulse.properties.SocialProperties;
 
-@Slf4j
 @RestController
 @RequestMapping("/api")
 public class ApiController {
 
   @Autowired
   private DatabaseManager database;
+
+  @Autowired
+  private SocialProperties social;
   
   @GetMapping("/test")
   public String index() {
@@ -37,11 +39,14 @@ public class ApiController {
 
   @GetMapping("/history")
   public List<HistoryEntry> history(Integer serviceId, Integer limit) {
-    log.info("/history?serviceId={}&limit={}", serviceId, limit);
-
     if (serviceId == null) return new ArrayList<>();
     if (limit == null) limit = 10;
 
     return this.database.getHistory(serviceId, limit);
+  }
+
+  @GetMapping("/socials")
+  public SocialProperties socials() {
+    return this.social;
   }
 }

@@ -1,16 +1,19 @@
 <template>
   <h1>Service Status</h1>
   <ServiceList></ServiceList>
+  <ConnectionList></ConnectionList>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ServiceList from './components/ServiceList.vue';
+import ConnectionList from './components/ConnectionList.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
-    ServiceList
+    ServiceList,
+    ConnectionList
   }
 });
 </script>
