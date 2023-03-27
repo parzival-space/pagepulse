@@ -1,4 +1,4 @@
-package space.parzival.pagepulse.properties.format;
+package space.parzival.pagepulse.database;
 
 public enum Status {
   OPERATIONAL,
