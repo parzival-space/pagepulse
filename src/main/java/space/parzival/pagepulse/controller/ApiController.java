@@ -26,7 +26,7 @@ public class ApiController {
   
   @GetMapping("/test")
   public String index() {
-    this.database.addHistoryEntry(1, new Timestamp(new Date().getTime()), Status.OPERATIONAL, null);
+    this.database.addHistoryEntry(1, new Timestamp(new Date().getTime()), Status.OPERATIONAL, null, null);
     return "OK";
   }
 

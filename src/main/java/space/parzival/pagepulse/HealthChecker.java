@@ -61,6 +61,7 @@ public class HealthChecker implements InitializingBean {
    */
   private void runServiceCheck(Service service) {
     Status status = Status.UNKNOWN;
+    String possibleCause = null;
     String error = null;
 
     try {
@@ -85,16 +86,19 @@ public class HealthChecker implements InitializingBean {
       log.info("SSL connection failed ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.LIMITED;
+      possibleCause = "Invalid SLL certificate.";
       error = e.getMessage();
     } catch (CertificateException e) {
       log.info("Certificate check ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.LIMITED;
+      possibleCause = "Invalid SLL certificate.";
       error = e.getMessage();
     } catch (UnknownHostException e) {
       log.info("Host unknown ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.OFFLINE;
+      possibleCause = "Invalid domain configuration.";
       error = "Host unknown: " + e.getMessage();
     } catch (IOException e) {
       log.info("Connection check failed ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
@@ -102,10 +106,11 @@ public class HealthChecker implements InitializingBean {
       e.printStackTrace();
 
       status = Status.OFFLINE;
+      possibleCause = "Unknown error.";
       error = "Failed to connect to server.";
     }
 
-    database.addHistoryEntry(service.getId(), new Timestamp(new Date().getTime()), status, error);
+    database.addHistoryEntry(service.getId(), new Timestamp(new Date().getTime()), status, error, possibleCause);
   }
 
 }

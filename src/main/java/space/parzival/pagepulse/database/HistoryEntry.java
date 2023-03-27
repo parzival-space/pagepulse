@@ -10,6 +10,7 @@ public class HistoryEntry {
   private Timestamp timestamp;
   private Status status;
   private String error = null;
+  private String possibleCause = null;
 
   public void parseStatus(String status) {
     switch (status.toUpperCase()) {

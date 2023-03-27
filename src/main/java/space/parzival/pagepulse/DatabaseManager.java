@@ -71,6 +71,7 @@ public class DatabaseManager {
             "timestamp TIMESTAMP NOT NULL, "+
             "status VARCHAR(11) NOT NULL, "+
             "error TEXT, "+
+            "possibleCause TEXT, "+
             "FOREIGN KEY (serviceId) REFERENCES services(id) ON DELETE CASCADE" +
           ")"
         );
@@ -201,6 +202,7 @@ public class DatabaseManager {
         entry.setTimestamp(rs.getTimestamp("timestamp"));
         entry.setError(rs.getString("error"));
         entry.parseStatus(rs.getString("status"));
+        entry.setPossibleCause(rs.getString("possibleCause"));
 
         history.add(entry);
       }
@@ -235,13 +237,14 @@ public class DatabaseManager {
     return result;
   }
 
-  public void addHistoryEntry(int serviceId, Timestamp timestamp, Status status, String error) {
+  public void addHistoryEntry(int serviceId, Timestamp timestamp, Status status, String error, String possibleCause) {
     try (Statement statement = this.connection.createStatement()) {
       statement.execute(
-        "INSERT INTO history (serviceId, timestamp, status, error) " +
+        "INSERT INTO history (serviceId, timestamp, status, error, possibleCause) " +
         "VALUES ('" + serviceId + "', '" + timestamp.toString() + 
           "', '" + status.toString() + 
-          "', " + (error == null ? "NULL" : "'" + error + "'") + 
+          "', " + (error == null ? "NULL" : "'" + error + "'") +
+          ", " + (possibleCause == null ? "NULL" : "'" + possibleCause + "'") + 
         ")"
       );
     }
