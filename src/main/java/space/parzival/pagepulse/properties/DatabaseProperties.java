@@ -13,5 +13,5 @@ public class DatabaseProperties {
   
   private int queryTimeout = 30;
 
-  private String databasePath = "./database.db";
+  private String databasePath = "";
 }

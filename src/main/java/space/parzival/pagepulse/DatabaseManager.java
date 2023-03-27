@@ -1,10 +1,7 @@
 package space.parzival.pagepulse;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -12,10 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import javax.naming.spi.DirStateFactory.Result;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,7 +30,11 @@ public class DatabaseManager {
 
   @Autowired
   public DatabaseManager(DatabaseProperties dbProperties, ApplicationProperties properties) throws SQLException {
-    boolean isNewDatabase = !(new File(dbProperties.getDatabasePath())).exists();
+    if (dbProperties.getDatabasePath().isEmpty()) {
+      log.error("You did not define database path. Please check you application.properties file.");
+      Runtime.getRuntime().exit(1);
+      return;
+    }
 
     // create database connection
     this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbProperties.getDatabasePath());
@@ -45,33 +43,52 @@ public class DatabaseManager {
 
     // enable foreign keys and check if initialization is required
     this.statement.execute("PRAGMA foreign_keys = ON");
-    if (isNewDatabase) this.initTables();
+    this.initTables();
 
     this.populateServices(properties);
   }
 
   private void initTables() throws SQLException {
     // initialize services table
-    this.statement.execute(
-      "CREATE TABLE services (" +
-        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-        "\"group\" TEXT NOT NULL," +
-        "name TEXT NOT NULL, " +
-        "endpoint TEXT NOT NULL " +
-      ")"
-    );
+    if (!doesTableExist("services")) {
+      log.debug("Initializing missing table 'services'...");
 
+      this.statement.execute(
+        "CREATE TABLE services (" +
+          "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+          "\"group\" TEXT NOT NULL," +
+          "name TEXT NOT NULL, " +
+          "endpoint TEXT NOT NULL " +
+        ")"
+      );
+    }
+    
     // initialize history table
-    this.statement.execute(
-      "CREATE TABLE history (" +
-        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-        "serviceId INTEGER NOT NULL, "+
-        "timestamp TIMESTAMP NOT NULL, "+
-        "status VARCHAR(11) NOT NULL, "+
-        "error TEXT, "+
-        "FOREIGN KEY (serviceId) REFERENCES services(id) ON DELETE CASCADE" +
-      ")"
-    );
+    if (!doesTableExist("history")) {
+      log.debug("Initializing missing table 'history'...");
+
+      this.statement.execute(
+        "CREATE TABLE history (" +
+          "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+          "serviceId INTEGER NOT NULL, "+
+          "timestamp TIMESTAMP NOT NULL, "+
+          "status VARCHAR(11) NOT NULL, "+
+          "error TEXT, "+
+          "FOREIGN KEY (serviceId) REFERENCES services(id) ON DELETE CASCADE" +
+        ")"
+      );
+    }
+  }
+
+  private boolean doesTableExist(String tableName) throws SQLException {
+    ResultSet result = this.statement.executeQuery("SELECT * FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
+    
+    int count = 0;
+    while (result.next()) {
+      count++;
+    }
+
+    return count > 0;
   }
 
   private void populateServices(ApplicationProperties properties) throws SQLException {

@@ -1,7 +1,6 @@
 package space.parzival.pagepulse.database;
 
 import java.net.URI;
-import java.net.URL;
 
 import lombok.Getter;
 import lombok.Setter;
