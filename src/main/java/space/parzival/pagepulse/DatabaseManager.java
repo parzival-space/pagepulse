@@ -26,7 +26,6 @@ import space.parzival.pagepulse.properties.format.ServiceConfiguration;
 @Component
 public class DatabaseManager {
   private Connection connection;
-  private Statement statement;
 
   @Autowired
   public DatabaseManager(DatabaseProperties dbProperties, ApplicationProperties properties) throws SQLException {
@@ -38,64 +37,73 @@ public class DatabaseManager {
 
     // create database connection
     this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbProperties.getDatabasePath());
-    this.statement = this.connection.createStatement();
     log.info("Database connected.");
 
-    // enable foreign keys and check if initialization is required
-    this.statement.execute("PRAGMA foreign_keys = ON");
-    this.initTables();
+    try (Statement statement = this.connection.createStatement()) {
+      // enable foreign keys and check if initialization is required
+      statement.execute("PRAGMA foreign_keys = ON");
+    }
 
+    this.initTables();
     this.populateServices(properties);
   }
 
   private void initTables() throws SQLException {
-    // initialize services table
-    if (!doesTableExist("services")) {
-      log.debug("Initializing missing table 'services'...");
+    try (Statement statement = this.connection.createStatement()) {
 
-      this.statement.execute(
-        "CREATE TABLE services (" +
-          "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-          "\"group\" TEXT NOT NULL," +
-          "name TEXT NOT NULL, " +
-          "endpoint TEXT NOT NULL " +
-        ")"
-      );
-    }
-    
-    // initialize history table
-    if (!doesTableExist("history")) {
-      log.debug("Initializing missing table 'history'...");
+      // initialize services table
+      if (!doesTableExist("services")) {
+        log.debug("Initializing missing table 'services'...");
 
-      this.statement.execute(
-        "CREATE TABLE history (" +
-          "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-          "serviceId INTEGER NOT NULL, "+
-          "timestamp TIMESTAMP NOT NULL, "+
-          "status VARCHAR(11) NOT NULL, "+
-          "error TEXT, "+
-          "FOREIGN KEY (serviceId) REFERENCES services(id) ON DELETE CASCADE" +
-        ")"
-      );
+        statement.execute(
+          "CREATE TABLE services (" +
+            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            "\"group\" TEXT NOT NULL," +
+            "name TEXT NOT NULL, " +
+            "endpoint TEXT NOT NULL " +
+          ")"
+        );
+      }
+      
+      // initialize history table
+      if (!doesTableExist("history")) {
+        log.debug("Initializing missing table 'history'...");
+
+        statement.execute(
+          "CREATE TABLE history (" +
+            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            "serviceId INTEGER NOT NULL, "+
+            "timestamp TIMESTAMP NOT NULL, "+
+            "status VARCHAR(11) NOT NULL, "+
+            "error TEXT, "+
+            "FOREIGN KEY (serviceId) REFERENCES services(id) ON DELETE CASCADE" +
+          ")"
+        );
+      }
+
     }
   }
 
   private boolean doesTableExist(String tableName) throws SQLException {
-    ResultSet result = this.statement.executeQuery("SELECT * FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
-    
-    int count = 0;
-    while (result.next()) {
-      count++;
-    }
+    try (Statement statement = this.connection.createStatement()) {
+      ResultSet result = statement.executeQuery("SELECT * FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
+      
+      int count = 0;
+      while (result.next()) {
+        count++;
+      }
 
-    return count > 0;
+      return count > 0;
+    }
   }
 
   private void populateServices(ApplicationProperties properties) throws SQLException {
     List<ServiceConfiguration> serviceConfigurations = properties.getServices();
     if (serviceConfigurations.isEmpty()) {
-      log.warn("No services registered in configuration file. The service table will empty.");
-      this.statement.execute("DELETE FROM services");
+      try (Statement statement = this.connection.createStatement()) {
+        log.warn("No services registered in configuration file. The service table will empty.");
+        statement.execute("DELETE FROM services");
+      }
       return;
     }
 
@@ -118,7 +126,10 @@ public class DatabaseManager {
       );
       if (i +1 != serviceConfigurations.size()) deleteStatement.append(" AND ");
     }
-    this.statement.execute(deleteStatement.toString());
+    
+    try (Statement statement = this.connection.createStatement()) {
+      statement.execute(deleteStatement.toString());
+    }
 
     // create new entries
     int skipped = 0;
@@ -141,7 +152,9 @@ public class DatabaseManager {
       log.info("All service entries are up to date.");
     } else {
       log.info("Updating service entries...");
-      this.statement.execute(insertStatement.toString());
+      try (Statement statement = this.connection.createStatement()) {
+        statement.execute(insertStatement.toString());
+      }
     }
   }
 
@@ -153,8 +166,8 @@ public class DatabaseManager {
   public List<Service> getServices() {
     List<Service> services = new ArrayList<>();
 
-    try {
-      ResultSet rs = this.statement.executeQuery("SELECT * FROM services");
+    try (Statement statement = this.connection.createStatement()) {
+      ResultSet rs = statement.executeQuery("SELECT * FROM services");
 
       while (rs.next()) {
         Service service = new Service();
@@ -179,11 +192,11 @@ public class DatabaseManager {
    * @param serviceId The service you want to get the history for.
    * @return Full service history.
    */
-  public List<HistoryEntry> getHistory(int serviceId) {
+  public List<HistoryEntry> getHistory(int serviceId, int limit) {
     List<HistoryEntry> history = new ArrayList<>();
 
-    try {
-      ResultSet rs = this.statement.executeQuery("SELECT * FROM history WHERE (serviceId = " + serviceId + ") ORDER BY timestamp DESC");
+    try (Statement statement = this.connection.createStatement()) {
+      ResultSet rs = statement.executeQuery("SELECT * FROM history WHERE (serviceId = " + serviceId + ") ORDER BY timestamp DESC LIMIT " + limit);
 
       while (rs.next()) {
         HistoryEntry entry = new HistoryEntry();
@@ -211,8 +224,8 @@ public class DatabaseManager {
   public int getServiceId(String name, String group) {
     int result = -1;
 
-    try {
-      ResultSet rs = this.statement.executeQuery("SELECT id FROM services WHERE (name = '" + name + "' AND \"group\" = '" + group + "')");
+    try (Statement statement = this.connection.createStatement()) {
+      ResultSet rs = statement.executeQuery("SELECT id FROM services WHERE (name = '" + name + "' AND \"group\" = '" + group + "')");
 
       while (rs.next()) {
         result = rs.getInt("id");
@@ -226,8 +239,8 @@ public class DatabaseManager {
   }
 
   public void addHistoryEntry(int serviceId, Timestamp timestamp, Status status, String error) {
-    try {
-      this.statement.execute(
+    try (Statement statement = this.connection.createStatement()) {
+      statement.execute(
         "INSERT INTO history (serviceId, timestamp, status, error) " +
         "VALUES ('" + serviceId + "', '" + timestamp.toString() + 
           "', '" + status.toString() + 

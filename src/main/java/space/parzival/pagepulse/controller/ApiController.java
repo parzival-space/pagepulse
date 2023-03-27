@@ -34,6 +34,11 @@ public class ApiController {
 
   @GetMapping("/history")
   public List<HistoryEntry> history(int serviceId) {
-    return this.database.getHistory(serviceId);
+    return this.database.getHistory(serviceId, 5);
+  }
+
+  @GetMapping("/history")
+  public List<HistoryEntry> history(int serviceId, int limit) {
+    return this.database.getHistory(serviceId, limit);
   }
 }
