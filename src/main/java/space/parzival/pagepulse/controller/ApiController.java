@@ -1,8 +1,6 @@
 package space.parzival.pagepulse.controller;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import space.parzival.pagepulse.DatabaseManager;
 import space.parzival.pagepulse.database.HistoryEntry;
 import space.parzival.pagepulse.database.Service;
-import space.parzival.pagepulse.database.Status;
 import space.parzival.pagepulse.properties.SocialProperties;
 
 @RestController
@@ -25,12 +22,6 @@ public class ApiController {
 
   @Autowired
   private SocialProperties social;
-  
-  @GetMapping("/test")
-  public String index() {
-    this.database.addHistoryEntry(1, new Timestamp(new Date().getTime()), Status.OPERATIONAL, null, null);
-    return "OK";
-  }
 
   @GetMapping("/services")
   public List<Service> services() {

@@ -14,6 +14,5 @@ import space.parzival.pagepulse.properties.format.ServiceConfiguration;
 @Component
 @ConfigurationProperties(prefix = "pagepulse")
 public class ApplicationProperties {
-
   private List<ServiceConfiguration> services = new ArrayList<>();
 }

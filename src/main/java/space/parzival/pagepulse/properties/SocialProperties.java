@@ -10,7 +10,6 @@ import lombok.Setter;
 @Component
 @ConfigurationProperties(prefix = "pagepulse.social")
 public class SocialProperties {
-  
   private String github = null;
   private String discord = null;
 }

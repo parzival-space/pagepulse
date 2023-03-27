@@ -10,8 +10,6 @@ import lombok.Setter;
 @Component
 @ConfigurationProperties(prefix = "pagepulse.database")
 public class DatabaseProperties {
-  
   private int queryTimeout = 30;
-
   private String databasePath = "";
 }
