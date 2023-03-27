@@ -3,6 +3,7 @@ package space.parzival.pagepulse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -80,20 +81,25 @@ public class HealthChecker implements InitializingBean {
 
       // all checks passed
       status = Status.OPERATIONAL;
-    } catch (SSLHandshakeException sslhe) {
-      log.info("SSL connection failed ({}/{}): {}", service.getGroup(), service.getName(), sslhe.getMessage());
+    } catch (SSLHandshakeException e) {
+      log.info("SSL connection failed ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.LIMITED;
-      error = sslhe.getMessage();
-    } catch (CertificateException ce) {
-      log.info("Certificate check ({}/{}): {}", service.getGroup(), service.getName(), ce.getMessage());
+      error = e.getMessage();
+    } catch (CertificateException e) {
+      log.info("Certificate check ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.LIMITED;
-      error = ce.getMessage();
-    } catch (IOException ioe) {
-      log.info("Connection check failed ({}/{}): {}", service.getGroup(), service.getName(), ioe.getMessage());
+      error = e.getMessage();
+    } catch (UnknownHostException e) {
+      log.info("Host unknown ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
-      ioe.printStackTrace();
+      status = Status.OFFLINE;
+      error = "Host unknown: " + e.getMessage();
+    } catch (IOException e) {
+      log.info("Connection check failed ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
+
+      e.printStackTrace();
 
       status = Status.OFFLINE;
       error = "Failed to connect to server.";

@@ -39,11 +39,6 @@ public class DatabaseManager {
     this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbProperties.getDatabasePath());
     log.info("Database connected.");
 
-    try (Statement statement = this.connection.createStatement()) {
-      // enable foreign keys and check if initialization is required
-      statement.execute("PRAGMA foreign_keys = ON");
-    }
-
     this.initTables();
     this.populateServices(properties);
   }
@@ -102,6 +97,7 @@ public class DatabaseManager {
     if (serviceConfigurations.isEmpty()) {
       try (Statement statement = this.connection.createStatement()) {
         log.warn("No services registered in configuration file. The service table will empty.");
+        statement.execute("PRAGMA foreign_keys = ON");
         statement.execute("DELETE FROM services");
       }
       return;
@@ -128,6 +124,7 @@ public class DatabaseManager {
     }
     
     try (Statement statement = this.connection.createStatement()) {
+      statement.execute("PRAGMA foreign_keys = ON");
       statement.execute(deleteStatement.toString());
     }
 
