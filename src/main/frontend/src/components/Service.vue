@@ -63,6 +63,8 @@ export default defineComponent({
     place-content: space-between;
     padding: 1rem;
 
+    cursor: pointer;
+
     p {
       margin: 0;
       padding: 0;
