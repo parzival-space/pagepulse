@@ -1,0 +1,12 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "cSpell.words": [
+    "AUTOINCREMENT",
+    "Axios",
+    "pagepulse",
+    "parzival",
+    "sservices"
+  ],
+  "java.compile.nullAnalysis.mode": "automatic",
+  "git.ignoreLimitWarning": true
+}
