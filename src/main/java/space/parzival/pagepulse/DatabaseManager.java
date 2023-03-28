@@ -27,16 +27,22 @@ import space.parzival.pagepulse.properties.format.ServiceConfiguration;
 public class DatabaseManager {
   private Connection connection;
 
+  private final String servicesTable;
+  private final String historyTable;
+
   @Autowired
   public DatabaseManager(DatabaseProperties dbProperties, ApplicationProperties properties) throws SQLException {
-    if (dbProperties.getDatabasePath().isEmpty()) {
+    this.servicesTable = dbProperties.getTablePrefix() + "services";
+    this.historyTable = dbProperties.getTablePrefix() + "history";
+
+    if (dbProperties.getConnection().isEmpty()) {
       log.error("You did not define database path. Please check you application.properties file.");
       Runtime.getRuntime().exit(1);
       return;
     }
 
     // create database connection
-    this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbProperties.getDatabasePath());
+    this.connection = DriverManager.getConnection(dbProperties.getConnection());
     log.info("Database connected.");
 
     this.initTables();
@@ -47,11 +53,11 @@ public class DatabaseManager {
     try (Statement statement = this.connection.createStatement()) {
 
       // initialize services table
-      if (!doesTableExist("services")) {
+      if (!doesTableExist(this.servicesTable)) {
         log.debug("Initializing missing table 'services'...");
 
         statement.execute(
-          "CREATE TABLE services (" +
+          "CREATE TABLE " + this.servicesTable + "(" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
             "\"group\" TEXT NOT NULL," +
             "name TEXT NOT NULL, " +
@@ -61,18 +67,18 @@ public class DatabaseManager {
       }
       
       // initialize history table
-      if (!doesTableExist("history")) {
+      if (!doesTableExist(this.historyTable)) {
         log.debug("Initializing missing table 'history'...");
 
         statement.execute(
-          "CREATE TABLE history (" +
+          "CREATE TABLE " + this.historyTable + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
             "serviceId INTEGER NOT NULL, "+
             "timestamp TIMESTAMP NOT NULL, "+
             "status VARCHAR(11) NOT NULL, "+
             "error TEXT, "+
             "possibleCause TEXT, "+
-            "FOREIGN KEY (serviceId) REFERENCES services(id) ON DELETE CASCADE" +
+            "FOREIGN KEY (serviceId) REFERENCES " + this.servicesTable + "(id) ON DELETE CASCADE" +
           ")"
         );
       }
@@ -81,8 +87,9 @@ public class DatabaseManager {
   }
 
   private boolean doesTableExist(String tableName) throws SQLException {
+    String query = String.format("SELECT * FROM %s LIMIT 1", tableName);
     try (Statement statement = this.connection.createStatement()) {
-      ResultSet result = statement.executeQuery("SELECT * FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
+      ResultSet result = statement.executeQuery(query);
       
       int count = 0;
       while (result.next()) {
@@ -90,6 +97,9 @@ public class DatabaseManager {
       }
 
       return count > 0;
+    }
+    catch (SQLException e) {
+      return false;
     }
   }
 
@@ -99,7 +109,7 @@ public class DatabaseManager {
       try (Statement statement = this.connection.createStatement()) {
         log.warn("No services registered in configuration file. The service table will empty.");
         statement.execute("PRAGMA foreign_keys = ON");
-        statement.execute("DELETE FROM services");
+        statement.execute("DELETE FROM " + this.servicesTable);
       }
       return;
     }
@@ -108,14 +118,15 @@ public class DatabaseManager {
 
     // remove obsolete services
     StringBuilder deleteStatement = new StringBuilder();
-    deleteStatement.append("DELETE FROM services WHERE ");
+    deleteStatement.append("DELETE FROM " + this.servicesTable + " WHERE ");
     for (int i = 0; i < serviceConfigurations.size(); i++) {
       ServiceConfiguration sConf = serviceConfigurations.get(i);
 
       // update delete statement
       deleteStatement.append(
         String.format(
-          "id NOT IN (SELECT id FROM services WHERE (name = '%s' AND \"group\" = '%s' AND endpoint = '%s'))", 
+          "id NOT IN (SELECT id FROM %s WHERE (name = '%s' AND \"group\" = '%s' AND endpoint = '%s'))", 
+          this.servicesTable,
           sConf.getName(),
           sConf.getGroup(),
           sConf.getEndpoint()
@@ -132,7 +143,7 @@ public class DatabaseManager {
     // create new entries
     int skipped = 0;
     StringBuilder insertStatement = new StringBuilder();
-    insertStatement.append("INSERT INTO services (name, \"group\", endpoint) VALUES ");
+    insertStatement.append("INSERT INTO " + this.servicesTable + " (name, \"group\", endpoint) VALUES ");
     for (int i = 0; i < serviceConfigurations.size(); i++) {
       ServiceConfiguration sConf = serviceConfigurations.get(i);
 
@@ -165,7 +176,7 @@ public class DatabaseManager {
     List<Service> services = new ArrayList<>();
 
     try (Statement statement = this.connection.createStatement()) {
-      ResultSet rs = statement.executeQuery("SELECT * FROM services");
+      ResultSet rs = statement.executeQuery("SELECT * FROM " + this.servicesTable);
 
       while (rs.next()) {
         Service service = new Service();
@@ -194,7 +205,7 @@ public class DatabaseManager {
     List<HistoryEntry> history = new ArrayList<>();
 
     try (Statement statement = this.connection.createStatement()) {
-      ResultSet rs = statement.executeQuery("SELECT * FROM history WHERE (serviceId = " + serviceId + ") ORDER BY timestamp DESC LIMIT " + limit);
+      ResultSet rs = statement.executeQuery("SELECT * FROM " + this.historyTable + " WHERE (serviceId = " + serviceId + ") ORDER BY timestamp DESC LIMIT " + limit);
 
       while (rs.next()) {
         HistoryEntry entry = new HistoryEntry();
@@ -224,7 +235,7 @@ public class DatabaseManager {
     int result = -1;
 
     try (Statement statement = this.connection.createStatement()) {
-      ResultSet rs = statement.executeQuery("SELECT id FROM services WHERE (name = '" + name + "' AND \"group\" = '" + group + "')");
+      ResultSet rs = statement.executeQuery("SELECT id FROM " + this.servicesTable + " WHERE (name = '" + name + "' AND \"group\" = '" + group + "')");
 
       while (rs.next()) {
         result = rs.getInt("id");
@@ -240,7 +251,7 @@ public class DatabaseManager {
   public void addHistoryEntry(int serviceId, Timestamp timestamp, Status status, String error, String possibleCause) {
     try (Statement statement = this.connection.createStatement()) {
       statement.execute(
-        "INSERT INTO history (serviceId, timestamp, status, error, possibleCause) " +
+        "INSERT INTO " + this.historyTable + " (serviceId, timestamp, status, error, possibleCause) " +
         "VALUES ('" + serviceId + "', '" + timestamp.toString() + 
           "', '" + status.toString() + 
           "', " + (error == null ? "NULL" : "'" + error + "'") +
@@ -250,6 +261,18 @@ public class DatabaseManager {
     }
     catch (SQLException e) {
       log.error("{}", e);
+    }
+  }
+
+  public void cleanupOldEntries(int serviceId, int entriesAfterCleanup) {
+    String query = String.format("DELETE FROM %s WHERE id NOT IN (SELECT id FROM pagepulse_history ORDER BY timestamp DESC LIMIT %i) AND serviceId = %i", this.historyTable, entriesAfterCleanup, serviceId);
+
+    try (Statement statement = this.connection.createStatement()) {
+      statement.executeQuery(query);
+    }
+    catch (SQLException e) {
+      log.error("Cleanup failed for service with id: {}", serviceId);
+      e.printStackTrace();
     }
   }
 }

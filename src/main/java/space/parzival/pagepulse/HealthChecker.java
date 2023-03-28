@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import space.parzival.pagepulse.database.Service;
 import space.parzival.pagepulse.database.Status;
 import space.parzival.pagepulse.properties.ApplicationProperties;
+import space.parzival.pagepulse.properties.DatabaseProperties;
 import space.parzival.pagepulse.properties.format.ServiceConfiguration;
 
 @Slf4j
@@ -35,6 +36,9 @@ public class HealthChecker implements InitializingBean {
 
   @Autowired
   private ApplicationProperties properties;
+
+  @Autowired
+  private DatabaseProperties dbProperties;
 
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -50,8 +54,11 @@ public class HealthChecker implements InitializingBean {
       // get interval
       long interval = serviceConfiguration != null ? serviceConfiguration.getInterval() : 5;
 
-      log.info("Scheduling a check task to run every {} seconds for service {}.", interval, service.getName());
-      this.executor.scheduleAtFixedRate(() -> this.runServiceCheck(service), 0, interval, TimeUnit.SECONDS);
+      log.info("Scheduling a check task to run every {} minutes for service {}.", interval, service.getName());
+      this.executor.scheduleAtFixedRate(() -> this.runServiceCheck(service), 0, interval, TimeUnit.MINUTES);
+
+      log.info("Scheduling a cleanup task to run every {} minutes for service {}.", this.dbProperties.getCleanupInterval(), service.getName());
+      this.executor.scheduleAtFixedRate(() -> database.cleanupOldEntries(service.getId(), this.dbProperties.getEntryLimit()), this.dbProperties.getCleanupInterval(), this.dbProperties.getCleanupInterval(), TimeUnit.MINUTES);
     }
   }
 

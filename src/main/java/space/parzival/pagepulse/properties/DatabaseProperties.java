@@ -11,5 +11,9 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "pagepulse.database")
 public class DatabaseProperties {
   private int queryTimeout = 30;
-  private String databasePath = "";
+  private String connection = "";
+  private String tablePrefix = "pagepulse_";
+
+  private int cleanupInterval = 60;
+  private int entryLimit = 10;
 }
