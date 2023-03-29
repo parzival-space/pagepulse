@@ -11,7 +11,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>space.parzival</groupId>
+	<groupId>space.parzival.pagepulse</groupId>
 	<artifactId>pagepulse</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 

@@ -29,7 +29,7 @@ import space.parzival.pagepulse.properties.format.ServiceConfiguration;
 @Slf4j
 @Component
 public class HealthChecker implements InitializingBean {
-  private ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);;
+  private ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
   @Autowired
   private DatabaseManager database;
