@@ -11,4 +11,5 @@ public class ServiceConfiguration {
   private String group;
   private URI endpoint;
   private int interval = 5;
+  private boolean endpointHidden = false;
 }

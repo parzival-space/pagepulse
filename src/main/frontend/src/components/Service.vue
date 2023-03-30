@@ -1,7 +1,7 @@
 <template>
   <div class="service" @click="showDetails = !showDetails">
     <div class="header">
-      <p class="title">{{ data.name }} <a :href="data.endpoint">({{ data.endpoint }})</a></p>
+      <p class="title">{{ data.name }} <a v-if="data.endpoint != null" :href="data.endpoint as string">({{ data.endpoint }})</a></p>
       <p class="status" :status="checkResult.status">{{ checkResult.status[0].toLocaleUpperCase() + checkResult.status.substring(1).toLocaleLowerCase() }}</p> <!-- TODO: implement this -->
     </div>
     <div class="details" v-if="showDetails">
