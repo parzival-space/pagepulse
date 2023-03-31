@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,6 @@ public class DatabaseManager {
   private final String servicesTable;
   private final String historyTable;
 
-  @Autowired
   public DatabaseManager(DatabaseProperties dbProperties, ApplicationProperties properties) throws SQLException {
     this.servicesTable = dbProperties.getTablePrefix() + "services";
     this.historyTable = dbProperties.getTablePrefix() + "history";
