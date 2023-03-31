@@ -268,7 +268,7 @@ public class DatabaseManager {
     String query = String.format("DELETE FROM %s WHERE id NOT IN (SELECT id FROM pagepulse_history ORDER BY timestamp DESC LIMIT %d) AND serviceId = %d", this.historyTable, entriesAfterCleanup, serviceId);
 
     try (Statement statement = this.connection.createStatement()) {
-      statement.executeQuery(query);
+      statement.execute(query);
     }
     catch (SQLException e) {
       log.error("Cleanup failed for service with id: {}", serviceId);
