@@ -14,7 +14,7 @@ import space.parzival.pagepulse.properties.DatabaseProperties;
 import space.parzival.pagepulse.properties.format.ServiceConfiguration;
 import space.parzival.pagepulse.utils.TestUtils;
 
-public class HealthCheckerTest {
+class HealthCheckerTest {
   
   private DatabaseManager database;
   private ApplicationProperties properties;
