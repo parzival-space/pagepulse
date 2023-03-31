@@ -4,5 +4,5 @@ export interface IService {
   id: number,
   name: string,
   group: string,
-  endpoint: string
+  endpoint: string | null
 }

@@ -25,7 +25,16 @@ public class ApiController {
 
   @GetMapping("/services")
   public List<Service> services() {
-    return this.database.getServices();
+    List<Service> services = this.database.getServices();
+
+    // hide urls for wanted entries
+    services.forEach(s -> {
+      if (!s.isEndpointHidden()) return;
+
+      s.setEndpoint(null);
+    });
+
+    return services;
   }
 
   @GetMapping("/history")

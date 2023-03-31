@@ -13,7 +13,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLException;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,25 +89,29 @@ public class HealthChecker implements InitializingBean {
 
       // all checks passed
       status = Status.OPERATIONAL;
-    } catch (SSLHandshakeException e) {
+    } 
+    catch (SSLException e) {
       log.info("SSL connection failed ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.LIMITED;
       possibleCause = "Invalid SLL certificate.";
-      error = e.getMessage();
-    } catch (CertificateException e) {
+      error = hideDomainIfRequired(e.getMessage(), service);
+    } 
+    catch (CertificateException e) {
       log.info("Certificate check ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.LIMITED;
       possibleCause = "Invalid SLL certificate.";
-      error = e.getMessage();
-    } catch (UnknownHostException e) {
+      error = hideDomainIfRequired(e.getMessage(), service);
+    } 
+    catch (UnknownHostException e) {
       log.info("Host unknown ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       status = Status.OFFLINE;
       possibleCause = "Invalid domain configuration.";
-      error = "Host unknown: " + e.getMessage();
-    } catch (IOException e) {
+      error = "Host unknown: " + hideDomainIfRequired(e.getMessage(), service);
+    } 
+    catch (IOException e) {
       log.info("Connection check failed ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
 
       e.printStackTrace();
@@ -120,4 +124,9 @@ public class HealthChecker implements InitializingBean {
     database.addHistoryEntry(service.getId(), new Timestamp(new Date().getTime()), status, error, possibleCause);
   }
 
+  private String hideDomainIfRequired(String errorMessage, Service service) {
+    if (!service.isEndpointHidden()) return errorMessage;
+
+    return errorMessage.replaceAll("(?i)" + service.getEndpoint().getHost(), "*");
+  }
 }

@@ -61,7 +61,8 @@ public class DatabaseManager {
             "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
             "\"group\" TEXT NOT NULL," +
             "name TEXT NOT NULL, " +
-            "endpoint TEXT NOT NULL " +
+            "endpoint TEXT NOT NULL, " +
+            "hidden BOOL NOT NULL" +
           ")"
         );
       }
@@ -143,7 +144,7 @@ public class DatabaseManager {
     // create new entries
     int skipped = 0;
     StringBuilder insertStatement = new StringBuilder();
-    insertStatement.append("INSERT INTO " + this.servicesTable + " (name, \"group\", endpoint) VALUES ");
+    insertStatement.append("INSERT INTO " + this.servicesTable + " (name, \"group\", endpoint, hidden) VALUES ");
     for (int i = 0; i < serviceConfigurations.size(); i++) {
       ServiceConfiguration sConf = serviceConfigurations.get(i);
 
@@ -154,7 +155,7 @@ public class DatabaseManager {
       };
 
       // insert new services
-      insertStatement.append(String.format("('%s', '%s', '%s')", sConf.getName(), sConf.getGroup(), sConf.getEndpoint()));
+      insertStatement.append(String.format("('%s', '%s', '%s', %b)", sConf.getName(), sConf.getGroup(), sConf.getEndpoint(), sConf.isEndpointHidden()));
       if (i +1 != serviceConfigurations.size()) insertStatement.append(", ");
     }
     if (serviceConfigurations.size() - skipped == 0) {
@@ -185,6 +186,7 @@ public class DatabaseManager {
         service.setName(rs.getString("name"));
         service.setGroup(rs.getString("group"));
         service.setEndpoint(new URI(rs.getString("endpoint")));
+        service.setEndpointHidden(rs.getBoolean("hidden"));
 
         services.add(service);
       }

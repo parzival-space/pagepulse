@@ -11,4 +11,5 @@ public class Service {
   private String name;
   private String group;
   private URI endpoint;
+  private boolean endpointHidden = false;
 }
