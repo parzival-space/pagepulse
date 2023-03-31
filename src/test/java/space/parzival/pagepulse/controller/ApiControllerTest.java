@@ -1,6 +1,5 @@
 package space.parzival.pagepulse.controller;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Field;
@@ -19,7 +18,7 @@ import space.parzival.pagepulse.properties.SocialProperties;
 import space.parzival.pagepulse.properties.format.ServiceConfiguration;
 import space.parzival.pagepulse.utils.TestUtils;
 
-public class ApiControllerTest {
+class ApiControllerTest {
 
   private ApiController apiController;
   private SocialProperties socials;

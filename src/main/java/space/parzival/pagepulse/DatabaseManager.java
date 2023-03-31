@@ -149,7 +149,7 @@ public class DatabaseManager {
       if (this.getServiceId(sConf.getName(), sConf.getGroup()) != -1) {
         skipped++;
         continue;
-      };
+      }
 
       // insert new services
       insertStatement.append(String.format("('%s', '%s', '%s', %b)", sConf.getName(), sConf.getGroup(), sConf.getEndpoint(), sConf.isEndpointHidden()));
