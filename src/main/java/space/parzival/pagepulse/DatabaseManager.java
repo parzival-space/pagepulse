@@ -34,9 +34,8 @@ public class DatabaseManager {
     this.historyTable = dbProperties.getTablePrefix() + "history";
 
     if (dbProperties.getConnection().isEmpty()) {
-      log.error("You did not define database path. Please check you application.properties file.");
-      Runtime.getRuntime().exit(1);
-      return;
+      log.warn("You did not define database path. Please check you application.properties file. I will fallback to an in-memory database...");
+      dbProperties.setConnection("jdbc:sqlite::memory:");
     }
 
     // create database connection
@@ -272,7 +271,7 @@ public class DatabaseManager {
     }
     catch (SQLException e) {
       log.error("Cleanup failed for service with id: {}", serviceId);
-      e.printStackTrace();
+      log.trace("Cleanup failed because of an SQLException", e);
     }
   }
 }

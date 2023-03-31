@@ -10,5 +10,9 @@
     "sservices"
   ],
   "java.compile.nullAnalysis.mode": "automatic",
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "sonarlint.connectedMode.project": {
+    "connectionId": "parzival-space",
+    "projectKey": "parzival-space_pagepulse_AYcoQPoCzpZdfTrjxdEs"
+  }
 }

@@ -113,8 +113,7 @@ public class HealthChecker implements InitializingBean {
     } 
     catch (IOException e) {
       log.info("Connection check failed ({}/{}): {}", service.getGroup(), service.getName(), e.getMessage());
-
-      e.printStackTrace();
+      log.trace("Connection check failed because of an IOException", e);
 
       status = Status.OFFLINE;
       possibleCause = "Unknown error.";

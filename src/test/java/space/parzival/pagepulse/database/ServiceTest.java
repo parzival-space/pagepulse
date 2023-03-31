@@ -1,10 +1,11 @@
 package space.parzival.pagepulse.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class ServiceTest {
+class ServiceTest {
   
   @Test
   public void serviceTest() {
@@ -13,5 +14,8 @@ public class ServiceTest {
     // set values to something and check result
     service.setEndpointHidden(true);
     assertTrue(service.isEndpointHidden());
+
+    service.setId(1234);
+    assertEquals(1234, service.getId());
   }
 }
