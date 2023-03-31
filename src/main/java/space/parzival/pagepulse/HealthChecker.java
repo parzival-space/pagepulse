@@ -77,9 +77,7 @@ public class HealthChecker implements InitializingBean {
       HttpURLConnection connection = (HttpURLConnection) endpoint.openConnection();
 
       // check ssl
-      if (connection instanceof HttpsURLConnection) {
-        HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
-
+      if (connection instanceof HttpsURLConnection httpsConnection) {
         // check certificate
         httpsConnection.connect();
         for (Certificate cert : httpsConnection.getServerCertificates()) {

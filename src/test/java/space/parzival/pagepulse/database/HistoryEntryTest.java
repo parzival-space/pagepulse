@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class HistoryEntryTest {
   
   @Test
-  public void parseStatusTest() {
+  void parseStatusTest() {
     HistoryEntry historyEntry = new HistoryEntry();
 
     historyEntry.parseStatus("Operational");

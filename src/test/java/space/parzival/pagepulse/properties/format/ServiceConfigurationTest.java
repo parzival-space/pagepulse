@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class ServiceConfigurationTest {
   
   @Test
-  public void serviceConfigurationTest() {
+  void serviceConfigurationTest() {
     ServiceConfiguration configuration = new ServiceConfiguration();
 
     // set values to something and check result
