@@ -265,7 +265,7 @@ public class DatabaseManager {
   }
 
   public void cleanupOldEntries(int serviceId, int entriesAfterCleanup) {
-    String query = String.format("DELETE FROM %s WHERE id NOT IN (SELECT id FROM pagepulse_history ORDER BY timestamp DESC LIMIT %i) AND serviceId = %i", this.historyTable, entriesAfterCleanup, serviceId);
+    String query = String.format("DELETE FROM %s WHERE id NOT IN (SELECT id FROM pagepulse_history ORDER BY timestamp DESC LIMIT %d) AND serviceId = %d", this.historyTable, entriesAfterCleanup, serviceId);
 
     try (Statement statement = this.connection.createStatement()) {
       statement.executeQuery(query);
