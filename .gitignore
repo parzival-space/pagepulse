@@ -213,7 +213,7 @@ dist
 docs/_book
 
 # TODO: where does this rule come from?
-test/
+/src/main/frontend/test/
 
 # End of https://www.toptal.com/developers/gitignore/api/java,maven,visualstudiocode,node,vue
 

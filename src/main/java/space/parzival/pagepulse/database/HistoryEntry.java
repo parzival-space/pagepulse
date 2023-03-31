@@ -9,8 +9,8 @@ import lombok.Setter;
 public class HistoryEntry {
   private Timestamp timestamp;
   private Status status;
-  private String error = null;
-  private String possibleCause = null;
+  private String error;
+  private String possibleCause;
 
   public void parseStatus(String status) {
     switch (status.toUpperCase()) {
