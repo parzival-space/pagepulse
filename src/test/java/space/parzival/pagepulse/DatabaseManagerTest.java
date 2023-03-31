@@ -19,24 +19,24 @@ class DatabaseManagerTest {
   private ApplicationProperties fApplicationProperties = new ApplicationProperties();
   private DatabaseProperties fDatabaseProperties = new DatabaseProperties();
 
-  /**
-   * Tries to connect to a in-memory database.
-   * This will setup the default tables and fill them with the configured service configuraitons.
-   */
   public DatabaseManagerTest() {
-    // create a instance of a service
-    ServiceConfiguration fService = TestUtils.createFakeServiceConfiguration();
-
     // populate configurations
     List<ServiceConfiguration> fConfigurations = new ArrayList<>();
-    fConfigurations.add(fService);
+
+    // create a instance of a service
+    fConfigurations.add(TestUtils.createFakeServiceConfiguration());
+    fConfigurations.add(TestUtils.createFakeServiceConfiguration());
+    fConfigurations.add(TestUtils.createFakeServiceConfiguration());
     
     this.fDatabaseProperties.setConnection("jdbc:sqlite::memory:"); // run a fake in-memory database
     this.fApplicationProperties.setServices(fConfigurations);
   }
 
+  /**
+   * Check if connecting to a database is possible.
+   */
   @Test
-  public void connectDatabaseTest() {
+  void connectDatabaseTest() {
     // connect to db
     DatabaseManager dbManager = assertDoesNotThrow(() -> new DatabaseManager(this.fDatabaseProperties, this.fApplicationProperties));
 
@@ -44,8 +44,11 @@ class DatabaseManagerTest {
     assertEquals(this.fApplicationProperties.getServices().size(), dbManager.getServices().size());
   }
 
+  /**
+   * Check if fetching the service history works.
+   */
   @Test
-  public void serviceHistoryTest() {
+  void serviceHistoryTest() {
     // connect to db
     DatabaseManager dbManager = assertDoesNotThrow(() -> new DatabaseManager(this.fDatabaseProperties, this.fApplicationProperties));
 
@@ -64,8 +67,11 @@ class DatabaseManagerTest {
     assertEquals(fHistoryEntry.getPossibleCause(), historyEntries.get(0).getPossibleCause());
   }
 
+  /**
+   * Test the removing of old entries from the service history.
+   */
   @Test
-  public void historyCleanupTest() {
+  void historyCleanupTest() {
     // connect to db
     DatabaseManager dbManager = assertDoesNotThrow(() -> new DatabaseManager(this.fDatabaseProperties, this.fApplicationProperties));
 
@@ -81,5 +87,24 @@ class DatabaseManagerTest {
     int expectedAfterCleanup = 5;
     dbManager.cleanupOldEntries(1, expectedAfterCleanup);
     assertEquals(expectedAfterCleanup, dbManager.getHistory(1, 20).size());
+  }
+
+  /**
+   * Check if the application can fallback to a in-memory database when no database is provided.
+   */
+  @Test
+  void missingConnectionTest() {
+    // connect to db
+    assertDoesNotThrow(() -> new DatabaseManager(new DatabaseProperties(), this.fApplicationProperties));
+  }
+
+  /**
+   * Check if the application is able to detect that there are no services provided by the user.
+   */
+  @Test
+  void missingServicesTest() {
+    ApplicationProperties emptyProperties = new ApplicationProperties();
+
+    assertDoesNotThrow(() -> new DatabaseManager(this.fDatabaseProperties, emptyProperties));
   }
 }

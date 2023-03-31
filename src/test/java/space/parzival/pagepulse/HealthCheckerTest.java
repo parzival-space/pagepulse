@@ -39,16 +39,17 @@ class HealthCheckerTest {
 
     this.database = new DatabaseManager(dbProperties, properties);
 
-    // create healtchecker intance
+    // create healtchecker instance
     this.healthChecker = new HealthChecker();
   }
 
   @Test
-  public void afterPropertiesSetTest() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+  void afterPropertiesSetTest() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException {
     // simulate autowire mechanic
     Field databaseField = this.healthChecker.getClass().getDeclaredField("database");
     Field propertiesField = this.healthChecker.getClass().getDeclaredField("properties");
     Field dbPropertiesField = this.healthChecker.getClass().getDeclaredField("dbProperties");
+
     databaseField.setAccessible(true);
     propertiesField.setAccessible(true);
     dbPropertiesField.setAccessible(true);
