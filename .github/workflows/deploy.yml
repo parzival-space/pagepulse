@@ -35,7 +35,8 @@ jobs:
         run: |
           mkdir -p ~/.m2
           echo "<settings><servers><server><id> ${{ secrets.NEXUS_ID }}</id><username>${{ secrets.NEXUS_USER }}</username><password>${{ secrets.NEXUS_PASSWORD }}</password></server></servers></settings>" > ~/.m2/settings.xml
-          mvn versions:set -DnewVersion=${{ steps.version.outputs.version }}
+          export VERSION=$(echo "${{ steps.version.outputs.version }}" | sed 's/-SNAPSHOT.*/-SNAPSHOT/')
+          mvn versions:set -DnewVersion=$VERSION
           mvn deploy
 
       - name: Create Git Tag

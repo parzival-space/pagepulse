@@ -13,7 +13,7 @@
 
 	<groupId>space.parzival.pagepulse</groupId>
 	<artifactId>pagepulse</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>SNAPSHOT</version>
 
 	<name>PagePulse</name>
 	<description>A simple self-hosted status page powered by Spring Boot.</description>
