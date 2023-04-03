@@ -15,7 +15,7 @@ I personally deploy it in on one of my cloud servers and let it monitor the stat
 
 
 ## Getting Started
-To get started with PagePulse, please refer to the (Installation)[https://github.com/parzival-space/pagepulse/wiki/Installation] section of the Wiki.
+To get started with PagePulse, please refer to the [Installation[(https://github.com/parzival-space/pagepulse/wiki/Installation) section of the Wiki.
 You will find detailed instructions on how to use this software.
 
 
