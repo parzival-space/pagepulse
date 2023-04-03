@@ -1,0 +1,54 @@
+name: Deploy Artifacts
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  workflow_dispatch:
+    # manual dispatch allowed
+
+jobs:
+  deploy:
+    name: Deploy Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: Git Version
+        id: version
+        uses: codacy/git-version@2.7.1
+        with:
+          release-branch: main
+          dev-branch: development
+          minor-identifier: "feature:"
+          major-identifier: "breaking:"
+
+      - name: Deploy to Nexus Repository
+        run: |
+          mkdir -p ~/.m2
+          echo "<settings><servers><server><id> ${{ secrets.NEXUS_ID }}</id><username>${{ secrets.NEXUS_USER }}</username><password>${{ secrets.NEXUS_PASSWORD }}</password></server></servers></settings>" > ~/.m2/settings.xml
+          mvn versions:set -DnewVersion=${{ steps.version.outputs.version }}
+          mvn deploy
+
+      - name: Create Git Tag
+        if: contains(steps.version.outputs.version, 'SNAPSHOT') == false
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        if: contains(steps.version.outputs.version, 'SNAPSHOT') == false
+        with:
+          prerelease: false
+          artifactErrorsFailBuild: true
+          tag: ${{ steps.version.outputs.version }}
+          artifacts: target/pagepulse-${{ steps.version.outputs.version }}.jar
