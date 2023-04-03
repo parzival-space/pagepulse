@@ -43,4 +43,4 @@ Service details.
 
 
 ## License
-Distributed under the MIT license. See ``LICENSE`` for more information.
+Distributed under the GNU GPL-3.0 license. See ``LICENSE`` for more information.
