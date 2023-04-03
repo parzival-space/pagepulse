@@ -7,10 +7,9 @@ on:
   workflow_dispatch:
     # manual dispatch allowed
 
-
 jobs:
-  build:
-    name: Build
+  scan:
+    name: Run SonarQube Scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
