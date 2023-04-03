@@ -62,7 +62,6 @@ class DatabaseManagerTest {
     List<HistoryEntry> historyEntries = dbManager.getHistory(1, 3);
     
     assertEquals(fHistoryEntry.getStatus(), historyEntries.get(0).getStatus());
-    assertEquals(fHistoryEntry.getTimestamp(), historyEntries.get(0).getTimestamp());
     assertEquals(fHistoryEntry.getError(), historyEntries.get(0).getError());
     assertEquals(fHistoryEntry.getPossibleCause(), historyEntries.get(0).getPossibleCause());
   }

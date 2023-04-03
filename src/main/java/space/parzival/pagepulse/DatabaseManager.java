@@ -3,6 +3,7 @@ package space.parzival.pagepulse;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -85,20 +86,10 @@ public class DatabaseManager {
   }
 
   private boolean doesTableExist(String tableName) throws SQLException {
-    String query = String.format("SELECT * FROM %s LIMIT 1", tableName);
-    try (Statement statement = this.connection.createStatement()) {
-      ResultSet result = statement.executeQuery(query);
-      
-      int count = 0;
-      while (result.next()) {
-        count++;
-      }
+    DatabaseMetaData meta = this.connection.getMetaData();
+    ResultSet resultSet = meta.getTables(null, null, tableName, new String[] {"TABLE"});
 
-      return count > 0;
-    }
-    catch (SQLException e) {
-      return false;
-    }
+    return resultSet.next();
   }
 
   private void populateServices(ApplicationProperties properties) throws SQLException {
@@ -152,8 +143,8 @@ public class DatabaseManager {
       }
 
       // insert new services
+      if (i > skipped) insertStatement.append(", ");
       insertStatement.append(String.format("('%s', '%s', '%s', %b)", sConf.getName(), sConf.getGroup(), sConf.getEndpoint(), sConf.isEndpointHidden()));
-      if (i +1 != serviceConfigurations.size()) insertStatement.append(", ");
     }
     if (serviceConfigurations.size() - skipped == 0) {
       log.info("All service entries are up to date.");
