@@ -31,14 +31,6 @@ jobs:
           minor-identifier: "feature:"
           major-identifier: "breaking:"
 
-      - name: Deploy to Nexus Repository
-        run: |
-          mkdir -p ~/.m2
-          echo "<settings><servers><server><id> ${{ secrets.NEXUS_ID }}</id><username>${{ secrets.NEXUS_USER }}</username><password>${{ secrets.NEXUS_PASSWORD }}</password></server></servers></settings>" > ~/.m2/settings.xml
-          export VERSION=$(echo "${{ steps.version.outputs.version }}" | sed 's/-SNAPSHOT.*/-SNAPSHOT/')
-          mvn versions:set -DnewVersion=$VERSION
-          mvn deploy
-
       - name: Create Git Tag
         if: contains(steps.version.outputs.version, 'SNAPSHOT') == false
         run: |
