@@ -4,7 +4,7 @@ As long as its reachable using HTTP/HTTPS its supported.
 The app also allows you to connect to databases using JDBC. 
 By default it will create a SQLite database.
 
-I personally deploy it in on one of my cloud servers and let it monitor the status of my applications: https://status.parzival.space/
+<!-- I personally deploy it in on one of my cloud servers and let it monitor the status of my applications: https://status.parzival.space/ -->
 
 
 ## Features
